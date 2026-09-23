@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tandem — Messaging that answers to no one.</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Grotesk:wght@400;500;700&family=Bebas+Neue&family=Outfit:wght@400;600;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-dark: #06080f;
+    --bg-panel: rgba(16, 22, 38, 0.65);
+    --accent-primary: #4f7cff;
+    --accent-glow: #00e0ff;
+    --accent-pink: #ff4f9a;
+    --text-main: #e4e8f1;
+    --text-muted: #8a94a6;
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --font-display: 'Syne', sans-serif;
+    --font-head: 'Outfit', sans-serif;
+    --font-mono: 'Space Grotesk', sans-serif;
+    --font-number: 'Bebas Neue', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2 { font-family: var(--font-display); color: #fff; line-height: 1.05; letter-spacing: -0.03em; }
+  h3 { font-family: var(--font-head); color: #fff; line-height: 1.2; }
+  h1 { font-size: clamp(2.4rem, 6vw, 4.5rem); font-weight: 800; }
+  h2 { font-size: clamp(1.9rem, 4vw, 3rem); font-weight: 800; }
+  h3 { font-size: 1.35rem; font-weight: 600; }
+  p { color: var(--text-muted); font-size: 1.05rem; line-height: 1.65; }
+
+  .container { width: min(90%, 1180px); margin: 0 auto; }
+  section { padding: 5.5rem 0; position: relative; }
+
+  /* ---------- Nav ---------- */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: 1.1rem 5%;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 100;
+    background: rgba(6, 8, 15, 0.6);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-glass);
+  }
+  .logo { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; color: #fff; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent-glow); }
+  .nav-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em; }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 7rem 0 5rem;
+    overflow: hidden; position: relative;
+  }
+  .hero-video {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; z-index: 0;
+    opacity: 0.35;
+    filter: hue-rotate(200deg) brightness(0.6) saturate(1.4);
+  }
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(79, 124, 255, 0.25) 0%, transparent 55%),
+      linear-gradient(180deg, rgba(6, 8, 15, 0.4) 0%, rgba(6, 8, 15, 0.95) 100%);
+    z-index: 1;
+  }
+  .hero-content { position: relative; z-index: 2; max-width: 820px; }
+  .hero-tag {
+    display: inline-block; padding: 0.45rem 1rem;
+    background: rgba(0, 224, 255, 0.08);
+    border: 1px solid rgba(0, 224, 255, 0.3);
+    border-radius: 50px; color: var(--accent-glow);
+    font-family: var(--font-mono); font-weight: 500;
+    font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+    margin-bottom: 1.75rem;
+  }
+  .hero h1 { margin-bottom: 1.25rem; }
+  .hero h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, var(--accent-glow), var(--accent-pink));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-subtitle { font-size: 1.15rem; margin-bottom: 2.25rem; max-width: 60ch; }
+
+  .cta-button {
+    display: inline-block; padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-pink));
+    color: #fff; font-family: var(--font-head); font-weight: 600; font-size: 1rem;
+    border-radius: 50px; border: none; cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 25px rgba(79, 124, 255, 0.4);
+  }
+  .cta-button:hover { transform: translateY(-3px); box-shadow: 0 8px 35px rgba(255, 79, 154, 0.5); }
+
+  .scroll-hint {
+    position: absolute; bottom: 2rem; left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-mono); font-size: 0.7rem;
+    color: var(--text-muted); letter-spacing: 0.3em; text-transform: uppercase;
+    z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+  }
+  .scroll-hint::after {
+    content: ''; width: 1px; height: 40px;
+    background: linear-gradient(180deg, var(--accent-glow), transparent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+  /* ============================================================
+     CINEMATIC SCROLL VIDEO SECTION
+     ============================================================ */
+  .cinema {
+    position: relative;
+    /* The tall wrapper gives us the scroll room */
+    height: 500vh;
+    background: #000;
+  }
+  .cinema-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .cinema video {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.55) contrast(1.1) saturate(1.15);
+  }
+  .cinema::after {
+    /* subtle vignette overlay on top of the video */
+    content: '';
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 50%, transparent 30%, rgba(0,0,0,0.7) 100%);
+    z-index: 1;
+  }
+
+  /* Each overlay sits centered over the video, fades in/out on scroll */
+  .cinema-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 0 6%;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0; /* animated by GSAP */
+  }
+  .cinema-overlay h2 {
+    font-size: clamp(2rem, 5.5vw, 4.5rem);
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    max-width: 950px;
+    margin-bottom: 1.25rem;
+  }
+  .cinema-overlay h2 em {
+    font-style: normal;
+    background: linear-gradient(90deg, var(--accent-glow), var(--accent-pink));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .cinema-overlay p {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--accent-glow);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+  }
+
+  /* Progress bar at bottom of cinema */
+  .cinema-progress {
+    position: absolute;
+    bottom: 3.5rem; left: 50%;
+    transform: translateX(-50%);
+    width: min(60%, 520px);
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    z-index: 4;
+    overflow: hidden;
+  }
+  .cinema-progress-bar {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--accent-glow), var(--accent-pink));
+    transform-origin: left center;
+  }
+  .cinema-label {
+    position: absolute;
+    bottom: 4.5rem; left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    z-index: 4;
+  }
+
+  /* ---------- Section Headers ---------- */
+  .section-header { text-align: center; max-width: 760px; margin: 0 auto 3.5rem; }
+  .section-header h2 { margin-bottom: 1rem; }
+  .section-header p { margin: 0 auto; }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent-glow);
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+
+  /* ---------- Glass Cards ---------- */
+  .glass-card {
+    background: var(--bg-panel);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: transform 0.4s, border-color 0.4s;
+    height: 100%;
+    display: flex; flex-direction: column; gap: 0.75rem;
+    overflow: hidden;
+  }
+  .glass-card:hover { transform: translateY(-6px); border-color: rgba(0, 224, 255, 0.4); }
+  .glass-card h3 { color: #fff; }
+  .glass-card p { margin: 0; }
+
+  /* ---------- Stats ---------- */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+  .stat-card {
+    padding: 2.25rem 1.5rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+    align-items: center; justify-content: center; text-align: center;
+  }
+  .stat-number {
+    font-family: var(--font-number);
+    font-size: 4rem;
+    font-weight: 400;
+    line-height: 1;
+    background: linear-gradient(180deg, #fff, var(--accent-glow));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.02em;
+  }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+  }
+
+  /* ---------- Guards ---------- */
+  .guards-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1.5rem;
+  }
+  .guard-card { padding: 0; }
+  .guard-image {
+    width: 100%; height: 200px;
+    object-fit: cover; display: block;
+    border-bottom: 1px solid var(--border-glass);
+    filter: saturate(1.1) contrast(1.05);
+    transition: transform 0.6s ease;
+  }
+  .guard-card:hover .guard-image { transform: scale(1.05); }
+  .guard-image-wrap { overflow: hidden; position: relative; }
+  .guard-image-wrap::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(6, 8, 15, 0.85) 100%);
+    pointer-events: none;
+  }
+  .guard-body { padding: 1.75rem; display: flex; flex-direction: column; gap: 0.75rem; }
+  .guard-number {
+    font-family: var(--font-number);
+    font-size: 2.25rem;
+    color: var(--accent-glow);
+    line-height: 1;
+    letter-spacing: 0.05em;
+  }
+
+  /* ---------- AI ---------- */
+  .ai-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  .ai-image {
+    width: 100%; border-radius: 24px; display: block;
+    box-shadow: 0 20px 60px rgba(79, 124, 255, 0.25);
+    border: 1px solid var(--border-glass);
+  }
+  .ai-steps { display: flex; flex-direction: column; gap: 1.25rem; counter-reset: step-counter; }
+  .ai-step {
+    position: relative;
+    padding: 1.5rem 1.5rem 1.5rem 4rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .ai-step::before {
+    counter-increment: step-counter;
+    content: counter(step-counter, decimal-leading-zero);
+    position: absolute; left: 1.25rem; top: 1.5rem;
+    font-family: var(--font-number);
+    font-size: 1.75rem;
+    color: var(--accent-glow);
+    line-height: 1;
+    letter-spacing: 0.05em;
+  }
+  .ai-step h3 { font-size: 1.1rem; }
+
+  /* ---------- Features ---------- */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .feature-card { padding: 1.75rem; }
+  .feature-icon {
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, rgba(79, 124, 255, 0.2), rgba(255, 79, 154, 0.15));
+    border: 1px solid rgba(0, 224, 255, 0.2);
+    border-radius: 12px;
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  /* ---------- Problem BG ---------- */
+  .problem-bg {
+    position: absolute; inset: 0;
+    background: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat;
+    opacity: 0.06;
+    z-index: 0;
+  }
+  #problem .container { position: relative; z-index: 1; }
+
+  /* ---------- Footer ---------- */
+  footer { padding: 2.5rem 0; border-top: 1px solid var(--border-glass); text-align: center; }
+  footer p { font-family: var(--font-mono); font-size: 0.85rem; margin: 0; letter-spacing: 0.05em; }
+
+  /* ---------- Animations ---------- */
+  .fade-up { opacity: 0; transform: translateY(30px); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 900px) {
+    .ai-layout { grid-template-columns: 1fr; gap: 2rem; }
+  }
+  @media (max-width: 768px) {
+    section { padding: 4rem 0; }
+    .hero { padding: 6rem 0 4rem; }
+    .section-header { margin-bottom: 2.5rem; }
+    .glass-card { padding: 1.5rem; }
+    .stat-card { padding: 1.75rem 1.25rem; }
+    .stat-number { font-size: 3rem; }
+    .guard-body { padding: 1.25rem; }
+    .guard-image { height: 170px; }
+    .ai-step { padding: 1.25rem 1.25rem 1.25rem 3.5rem; }
+    .ai-step::before { left: 1.1rem; top: 1.25rem; font-size: 1.4rem; }
+    .guards-list { grid-template-columns: 1fr; }
+    .cinema { height: 400vh; }
+    .cinema-progress { width: 70%; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <div class="logo">Tandem<span>.</span></div>
+    <div class="nav-tag">Private Messaging</div>
+  </nav>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="hero">
+    <video class="hero-video" autoplay muted loop playsinline
+      poster="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop">
+      <source src="https://videos.pexels.com/video-files/3129957/3129957-uhd_2560_1440_25fps.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay"></div>
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-tag fade-up">Peer-to-peer · On-device AI · Zero accounts</div>
+        <h1 class="fade-up">Messaging that answers to <em>no one</em>.</h1>
+        <p class="hero-subtitle fade-up">
+          Tandem sends messages phone-to-phone — not through a company. Encrypted end-to-end, routed through Tor, delivered even when the other person is offline.
+        </p>
+        <button class="cta-button fade-up">Get Started</button>
+      </div>
+    </div>
+    <div class="scroll-hint">Scroll</div>
+  </section>
+
+  <!-- ============================================================
+       CINEMATIC SCROLL VIDEO — the star of the show
+       ============================================================ -->
+  <section class="cinema" id="cinema">
+
+    <div class="cinema-sticky">
+      <video id="cinemaVideo" muted playsinline preload="auto"
+        poster="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop">
+        <!-- Primary source (thematic) -->
+        <source src="https://videos.pexels.com/video-files/3141210/3141210-uhd_2560_1440_25fps.mp4" type="video/mp4">
+        <!-- Fallback source (reliable) -->
+        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+      </video>
+
+      <!-- Overlay 1 -->
+      <div class="cinema-overlay" data-step="1">
+        <h2>Every message is <em>sealed</em> before it leaves.</h2>
+        <p>Layer 01 — Encryption</p>
+      </div>
+
+      <!-- Overlay 2 -->
+      <div class="cinema-overlay" data-step="2">
+        <h2>Routed through <em>three relays</em>. No one knows your route.</h2>
+        <p>Layer 02 — Tor Network</p>
+      </div>
+
+      <!-- Overlay 3 -->
+      <div class="cinema-overlay" data-step="3">
+        <h2>When you're offline, a <em>blind mailbox</em> waits.</h2>
+        <p>Layer 03 — Store &amp; Forward</p>
+      </div>
+
+      <!-- Overlay 4 -->
+      <div class="cinema-overlay" data-step="4">
+        <h2>Delivered. <em>Honestly.</em></h2>
+        <p>Layer 04 — Truthful Receipts</p>
+      </div>
+
+      <!-- Progress UI -->
+      <div class="cinema-label">Scroll Journey</div>
+      <div class="cinema-progress"><div class="cinema-progress-bar" id="cinemaBar"></div></div>
+    </div>
+  </section>
+
+  <!-- ================= PROBLEM / STATS ================= -->
+  <section id="problem">
+    <div class="problem-bg"></div>
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="eyebrow">The Threat</span>
+        <h2>The most dangerous part of a message is the link inside it.</h2>
+      </div>
+      <div class="stats-grid">
+        <div class="glass-card stat-card fade-up">
+          <div class="stat-number">3.4B</div>
+          <div class="stat-label">phishing emails sent every day</div>
+        </div>
+        <div class="glass-card stat-card fade-up">
+          <div class="stat-number">90%</div>
+          <div class="stat-label">of cyberattacks begin with a phishing message</div>
+        </div>
+        <div class="glass-card stat-card fade-up">
+          <div class="stat-number">00</div>
+          <div class="stat-label">of your links, messages, or metadata leave your phone</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOUR GUARDS ================= -->
+  <section id="guards">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="eyebrow">The System</span>
+        <h2>One message. Four guards.</h2>
+      </div>
+      <div class="guards-list">
+        <div class="glass-card guard-card fade-up">
+          <div class="guard-image-wrap">
+            <img class="guard-image" src="https://images.unsplash.com/photo-1633265486064-086b219458ec?q=80&w=1200&auto=format&fit=crop" alt="Encryption">
+          </div>
+          <div class="guard-body">
+            <div class="guard-number">01</div>
+            <h3>Sealed before it leaves</h3>
+            <p>A Double Ratchet generates a brand-new key for every single message. Even Tandem can't read what you wrote.</p>
+          </div>
+        </div>
+        <div class="glass-card guard-card fade-up">
+          <div class="guard-image-wrap">
+            <img class="guard-image" src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop" alt="Network">
+          </div>
+          <div class="guard-body">
+            <div class="guard-number">02</div>
+            <h3>Routed through Tor</h3>
+            <p>Your phone hosts a hidden service. The message hops three Tor relays before it leaves your Wi-Fi.</p>
+          </div>
+        </div>
+        <div class="glass-card guard-card fade-up">
+          <div class="guard-image-wrap">
+            <img class="guard-image" src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop" alt="Server">
+          </div>
+          <div class="guard-body">
+            <div class="guard-number">03</div>
+            <h3>Offline? A blind mailbox holds it</h3>
+            <p>Mail waits in a mailbox addressed to a random token — not their identity. Sizes are padded to fixed buckets.</p>
+          </div>
+        </div>
+        <div class="glass-card guard-card fade-up">
+          <div class="guard-image-wrap">
+            <img class="guard-image" src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?q=80&w=1200&auto=format&fit=crop" alt="Delivered">
+          </div>
+          <div class="guard-body">
+            <div class="guard-number">04</div>
+            <h3>Delivered — honestly</h3>
+            <p>The tick says what's true: sent, queued, delivered. No fake checkmarks. No silent losses.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= AI SECTION ================= -->
+  <section id="ai">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="eyebrow">On-Device AI</span>
+        <h2>A security analyst living in your phone.</h2>
+        <p>A transformer classifier — urlbert-tiny-v5 — runs locally via ONNX Runtime, backed by a deterministic rule engine.</p>
+      </div>
+      <div class="ai-layout">
+        <img class="ai-image fade-up" src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1600&auto=format&fit=crop" alt="On-device AI">
+        <div class="ai-steps">
+          <div class="glass-card ai-step fade-up">
+            <h3>Intercepted</h3>
+            <p>Links are found inside messages the moment they arrive — nothing opens automatically.</p>
+          </div>
+          <div class="glass-card ai-step fade-up">
+            <h3>Read locally</h3>
+            <p>The AI model runs on-device. No cloud scanner sees where you bank, shop, or browse.</p>
+          </div>
+          <div class="glass-card ai-step fade-up">
+            <h3>Judged in layers</h3>
+            <p>AI probability + structural rules must agree before anything is flagged HIGH.</p>
+          </div>
+          <div class="glass-card ai-step fade-up">
+            <h3>Honest, or silent</h3>
+            <p>If the model can't run, the app says "Unable to verify this link." Failure is never dressed up as safe.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section id="features">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="eyebrow">What You Get</span>
+        <h2>Everything a messenger should be. Nothing it shouldn't.</h2>
+      </div>
+      <div class="feature-grid">
+        <div class="glass-card feature-card fade-up">
+          <div class="feature-icon">🔐</div>
+          <h3>End-to-end encrypted</h3>
+          <p>A fresh key for every message. Not even Tandem can read what you wrote.</p>
+        </div>
+        <div class="glass-card feature-card fade-up">
+          <div class="feature-icon">🧅</div>
+          <h3>Routed through Tor</h3>
+          <p>Traffic hops three relays — the network sees Tor, not you.</p>
+        </div>
+        <div class="glass-card feature-card fade-up">
+          <div class="feature-icon">📬</div>
+          <h3>Delivered even offline</h3>
+          <p>Messages queue in blind token mailboxes and deliver the moment a link returns.</p>
+        </div>
+        <div class="glass-card feature-card fade-up">
+          <div class="feature-icon">🧠</div>
+          <h3>On-device AI protection</h3>
+          <p>Every link is classified locally before you open it. The URL never leaves your phone.</p>
+        </div>
+        <div class="glass-card feature-card fade-up">
+          <div class="feature-icon">🕶️</div>
+          <h3>Metadata, sealed</h3>
+          <p>Random per-contact tokens, padded sizes, jittered polling — nothing to profile.</p>
+        </div>
+        <div class="glass-card feature-card fade-up">
+          <div class="feature-icon">✓</div>
+          <h3>Honest by default</h3>
+          <p>The tick says what's true. AI failure says "unable to verify", never "safe".</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>© 2025 TANDEM — BUILT WITH PRIVACY IN MIND</p>
+    </div>
+  </footer>
+
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ---------- Fade-up reveals ---------- */
+  gsap.utils.toArray('.fade-up').forEach((el) => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 30 },
+      {
+        opacity: 1, y: 0,
+        duration: 0.9, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' }
+      }
+    );
+  });
+
+  /* ---------- Parallax backgrounds ---------- */
+  gsap.to('.problem-bg', {
+    yPercent: 20, ease: 'none',
+    scrollTrigger: { trigger: '#problem', start: 'top bottom', end: 'bottom top', scrub: true }
+  });
+  gsap.to('.hero-video', {
+    scale: 1.12, ease: 'none',
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
+  });
+
+  /* ============================================================
+     CINEMATIC SCROLL-SCRUBBED VIDEO
+     Ties video.currentTime to scroll position across 500vh.
+     Also fades 4 text overlays in/out at 4 key points.
+     ============================================================ */
+  const video = document.getElementById('cinemaVideo');
+  const bar   = document.getElementById('cinemaBar');
+  const overlays = gsap.utils.toArray('.cinema-overlay');
+
+  function initCinema() {
+    const duration = video.duration || 10;
+
+    // 1) Master timeline tied to scroll — scrubs the video
+    const master = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#cinema',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1,          // smooth catch-up
+        pin: false,        // the sticky wrapper already pins
+        onUpdate: (self) => {
+          // Progress bar
+          bar.style.width = (self.progress * 100) + '%';
+        }
+      }
+    });
+
+    // Scrub video time from 0 → duration over the whole scroll
+    master.fromTo(video, { currentTime: 0 }, { currentTime: duration, ease: 'none' }, 0);
+
+    // 2) Overlay fade timeline — 4 overlays, evenly spaced
+    overlays.forEach((ov, i) => {
+      const seg = 1 / overlays.length;      // 0.25 each
+      const start = i * seg;
+      const end = start + seg;
+      const fadeInAt  = start + 0.02;
+      const fadeOutAt = end   - 0.05;
+
+      // Use a nested timeline with labels on the master
+      master.fromTo(ov,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1, y: 0,
+          duration: 0.06,
+          ease: 'power2.out'
+        },
+        fadeInAt
+      );
+      master.to(ov,
+        { opacity: 0, y: -30, duration: 0.06, ease: 'power2.in' },
+        fadeOutAt
+      );
+    });
+  }
+
+  // Wait for metadata so video.duration is known
+  if (video.readyState >= 1) {
+    initCinema();
+  } else {
+    video.addEventListener('loadedmetadata', initCinema, { once: true });
+  }
+
+  // Also nudge the video to buffer on first scroll
+  let primed = false;
+  window.addEventListener('scroll', () => {
+    if (!primed) {
+      primed = true;
+      video.play().then(() => { video.pause(); video.currentTime = 0; }).catch(() => {});
+    }
+  }, { passive: true });
+
+</script>
+
+</body>
+</html>
